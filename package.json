@@ -20,8 +20,5 @@
   "prisma": {
     "seed": "yarn rw exec seed"
   },
-  "packageManager": "yarn@3.4.1",
-  "dependencies": {
-    "noire-munich": "portal:/Workspace/Code/TH90/catalog/rw-cloudformation"
-  }
+  "packageManager": "yarn@3.4.1"
 }
