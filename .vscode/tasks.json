@@ -1,0 +1,22 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Test current file",
+      "type": "shell",
+      "command": "yarn jest ${fileDirname}/${fileBasenameNoExtension}.test.ts --watch",
+      "group": { "kind": "test", "isDefault": "**/!(*.test).ts" },
+      "options": { "cwd": "/Workspace/Code/TH90/catalog/rw-cloudformation" }
+    },
+    {
+      "label": "Run test",
+      "type": "shell",
+      // "command": "cd /Workspace/Code/TH90/catalog/rw-cloudformation && yarn jest ${fileDirname}/${fileBasenameNoExtension}.test.ts --watch",
+      "command": "yarn jest ${fileDirname}/${fileBasename} --watch",
+      "group": { "kind": "test", "isDefault": "**/*.test.ts" },
+      "options": { "cwd": "/Workspace/Code/TH90/catalog/rw-cloudformation" }
+    }
+  ]
+}
