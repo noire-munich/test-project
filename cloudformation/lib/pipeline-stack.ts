@@ -75,6 +75,7 @@ export class PipelineStack extends cdk.Stack {
       input: sourceArtifact,
       outputs: [installedArtifact],
       project: installProject,
+      runOrder: 0,
     })
 
     const testProject = new cdk.aws_codebuild.PipelineProject(
@@ -101,6 +102,7 @@ export class PipelineStack extends cdk.Stack {
       actionName: 'test-project',
       input: installedArtifact,
       project: testProject,
+      runOrder: 1,
     })
 
     const buildProject = new cdk.aws_codebuild.PipelineProject(
@@ -134,6 +136,7 @@ export class PipelineStack extends cdk.Stack {
       input: installedArtifact,
       outputs: [buildArtifact],
       project: buildProject,
+      runOrder: 2,
     })
 
     pipeline.addStage({
