@@ -14,9 +14,9 @@ export class PipelineStack extends cdk.Stack {
 
     const pipeline = new cdk.aws_codepipeline.Pipeline(
       this,
-      'PROJECT_NAME__PIPELINE',
+      'PROJECT-NAME--PIPELINE',
       {
-        pipelineName: 'PROJECT_NAME',
+        pipelineName: 'PROJECT-NAME',
         restartExecutionOnUpdate: true,
       }
     )
@@ -39,17 +39,17 @@ export class PipelineStack extends cdk.Stack {
       })
 
     pipeline.addStage({
-      stageName: 'PROJECT_NAME__SOURCE_STAGE',
+      stageName: 'PROJECT-NAME--SOURCE_STAGE',
       actions: [actionSource],
     })
 
     const installedArtifact = new cdk.aws_codepipeline.Artifact(
-      'PROJECT_NAME__INSTALL'
+      'PROJECT-NAME--INSTALL'
     )
 
     const installProject = new cdk.aws_codebuild.PipelineProject(
       this,
-      'PROJECT_NAME__INSTALL',
+      'PROJECT-NAME--INSTALL',
       {
         buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
           version: '0.2',
@@ -80,7 +80,7 @@ export class PipelineStack extends cdk.Stack {
 
     const testProject = new cdk.aws_codebuild.PipelineProject(
       this,
-      'PROJECT_NAME__TEST',
+      'PROJECT-NAME--TEST',
       {
         buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
           version: '0.2',
@@ -107,7 +107,7 @@ export class PipelineStack extends cdk.Stack {
 
     const buildProject = new cdk.aws_codebuild.PipelineProject(
       this,
-      'PROJECT_NAME__BUILD',
+      'PROJECT-NAME--BUILD',
       {
         buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
           version: '0.2',
@@ -140,7 +140,7 @@ export class PipelineStack extends cdk.Stack {
     })
 
     pipeline.addStage({
-      stageName: 'PROJECT_NAME__BUILD_STAGE',
+      stageName: 'PROJECT-NAME--BUILD_STAGE',
       actions: [actionInstall, actionTest, actionBuild],
     })
   }
