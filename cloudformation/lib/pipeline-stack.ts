@@ -47,7 +47,7 @@ export class PipelineStack extends cdk.Stack {
 
     const installProject = new cdk.aws_codebuild.PipelineProject(
       this,
-      'PROJECT_NAME__BUILD',
+      'PROJECT_NAME__INSTALL',
       {
         buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
           version: '0.2',
@@ -77,7 +77,7 @@ export class PipelineStack extends cdk.Stack {
 
     const testProject = new cdk.aws_codebuild.PipelineProject(
       this,
-      'PROJECT_NAME__BUILD',
+      'PROJECT_NAME__TEST',
       {
         buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
           version: '0.2',
