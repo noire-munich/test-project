@@ -17,6 +17,7 @@ export class PipelineStack extends cdk.Stack {
       'PROJECT_NAME__PIPELINE',
       {
         pipelineName: 'PROJECT_NAME',
+        restartExecutionOnUpdate: true,
       }
     )
 
@@ -58,6 +59,7 @@ export class PipelineStack extends cdk.Stack {
                 'yarn rw prisma migrate dev',
                 'yarn build api',
                 'yarn build web',
+                'exit 0',
               ],
             },
           },
