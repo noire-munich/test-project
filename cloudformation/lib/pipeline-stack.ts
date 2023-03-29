@@ -100,7 +100,8 @@ export class PipelineStack extends cdk.Stack {
         phases: {
           build: {
             commands: [
-              'echo $CODEBUILD_SRC_DIR',
+              'yarn install',
+              // 'echo $CODEBUILD_SRC_DIR',
               'yarn rw prisma migrate dev',
               'yarn build api',
               'yarn build web',
@@ -122,7 +123,8 @@ export class PipelineStack extends cdk.Stack {
 
     const actionBuild = new cdk.aws_codepipeline_actions.CodeBuildAction({
       actionName: 'build-from-source',
-      input: installedArtifact,
+      // input: installedArtifact,
+      input: sourceArtifact,
       outputs: [buildArtifact],
       project: buildProject,
       runOrder: 3,
@@ -130,7 +132,11 @@ export class PipelineStack extends cdk.Stack {
 
     pipeline.addStage({
       stageName: 'BUILD',
-      actions: [actionInstall, actionTest, actionBuild],
+      actions: [
+        // actionInstall,
+        //  actionTest,
+        actionBuild,
+      ],
     })
   }
 }
