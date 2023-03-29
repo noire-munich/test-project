@@ -55,7 +55,7 @@ export class PipelineStack extends cdk.Stack {
                 'yarn install',
                 'yarn rw test api',
                 'yarn rw test web',
-                'yarn rw exec checkenv',
+                'yarn rw exec checkenv > .checkenv.out.yaml',
                 'yarn rw prisma migrate dev',
                 'yarn build api',
                 'yarn build web',
