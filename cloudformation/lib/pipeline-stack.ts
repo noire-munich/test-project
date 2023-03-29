@@ -44,7 +44,7 @@ export class PipelineStack extends cdk.Stack {
     })
 
     const installedArtifact = new cdk.aws_codepipeline.Artifact(
-      'PROJECT_NAME__SOURCE'
+      'PROJECT_NAME__INSTALL'
     )
 
     const installProject = new cdk.aws_codebuild.PipelineProject(
