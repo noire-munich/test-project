@@ -101,6 +101,7 @@ export class PipelineStack extends cdk.Stack {
           build: {
             commands: [
               'yarn install',
+              'yarn zip-it-and-ship-it dist/functions zipballs/',
               // 'echo $CODEBUILD_SRC_DIR',
               'yarn rw prisma migrate dev',
               'yarn rw build api',
@@ -109,7 +110,7 @@ export class PipelineStack extends cdk.Stack {
           },
         },
         artifacts: {
-          files: 'package.json',
+          files: 'zipballs/*',
         },
       }),
       // environmentVariables: {},/** @manual We get the project's variables from infer/prompt/file */
