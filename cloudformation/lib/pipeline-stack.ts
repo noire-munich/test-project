@@ -43,7 +43,9 @@ export class PipelineStack extends cdk.Stack {
       actions: [actionSource],
     })
 
-    const buildArtifact = new cdk.aws_codepipeline.Artifact('BUILD_ARTIFACT')
+    const installedArtifact = new cdk.aws_codepipeline.Artifact(
+      'PROJECT_NAME__SOURCE'
+    )
 
     const installProject = new cdk.aws_codebuild.PipelineProject(
       this,
@@ -71,7 +73,7 @@ export class PipelineStack extends cdk.Stack {
     const actionInstall = new cdk.aws_codepipeline_actions.CodeBuildAction({
       actionName: 'install-packages',
       input: sourceArtifact,
-      outputs: [buildArtifact],
+      outputs: [installedArtifact],
       project: installProject,
     })
 
@@ -97,8 +99,7 @@ export class PipelineStack extends cdk.Stack {
 
     const actionTest = new cdk.aws_codepipeline_actions.CodeBuildAction({
       actionName: 'test-project',
-      input: sourceArtifact,
-      outputs: [buildArtifact],
+      input: installedArtifact,
       project: testProject,
     })
 
@@ -126,9 +127,11 @@ export class PipelineStack extends cdk.Stack {
       }
     )
 
+    const buildArtifact = new cdk.aws_codepipeline.Artifact('BUILD_ARTIFACT')
+
     const actionBuild = new cdk.aws_codepipeline_actions.CodeBuildAction({
       actionName: 'build-from-source',
-      input: sourceArtifact,
+      input: installedArtifact,
       outputs: [buildArtifact],
       project: buildProject,
     })
