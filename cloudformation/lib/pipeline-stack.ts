@@ -99,12 +99,15 @@ export class PipelineStack extends cdk.Stack {
         phases: {
           build: {
             commands: [
-              'ls -la',
+              'echo $CODEBUILD_SRC_DIR',
               'yarn rw prisma migrate dev',
               'yarn build api',
               'yarn build web',
             ],
           },
+        },
+        artifacts: {
+          files: 'package.json',
         },
       }),
       // environmentVariables: {},/** @manual We get the project's variables from infer/prompt/file */
