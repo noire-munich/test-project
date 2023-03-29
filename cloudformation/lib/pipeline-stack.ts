@@ -38,11 +38,6 @@ export class PipelineStack extends cdk.Stack {
         output: sourceArtifact,
       })
 
-    pipeline.addStage({
-      stageName: 'PROJECT-NAME--SOURCE_STAGE',
-      actions: [actionSource],
-    })
-
     const installedArtifact = new cdk.aws_codepipeline.Artifact(
       'PROJECT-NAME--INSTALL'
     )
@@ -105,6 +100,11 @@ export class PipelineStack extends cdk.Stack {
       runOrder: 2,
     })
 
+    pipeline.addStage({
+      stageName: 'PROJECT-NAME--SOURCE',
+      actions: [actionSource, actionInstall, actionTest],
+    })
+
     const buildProject = new cdk.aws_codebuild.PipelineProject(
       this,
       'PROJECT-NAME--BUILD',
@@ -114,6 +114,7 @@ export class PipelineStack extends cdk.Stack {
           phases: {
             build: {
               commands: [
+                'ls -la',
                 'yarn rw prisma migrate dev',
                 'yarn build api',
                 'yarn build web',
@@ -140,8 +141,8 @@ export class PipelineStack extends cdk.Stack {
     })
 
     pipeline.addStage({
-      stageName: 'PROJECT-NAME--BUILD_STAGE',
-      actions: [actionInstall, actionTest, actionBuild],
+      stageName: 'PROJECT-NAME--BUILD',
+      actions: [actionBuild],
     })
   }
 }
