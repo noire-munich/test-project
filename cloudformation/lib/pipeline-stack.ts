@@ -12,20 +12,14 @@ export class PipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
-    const pipeline = new cdk.aws_codepipeline.Pipeline(
-      this,
-      'PROJECT-NAME--PIPELINE',
-      {
-        pipelineName: 'PROJECT-NAME',
-        restartExecutionOnUpdate: true,
-      }
-    )
+    const pipeline = new cdk.aws_codepipeline.Pipeline(this, 'PIPELINE', {
+      pipelineName: 'PROJECTNAME',
+      restartExecutionOnUpdate: true,
+    })
 
     pipeline.artifactBucket.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY)
 
-    const sourceArtifact = new cdk.aws_codepipeline.Artifact(
-      'PROJECT_ARTIFACT_SOURCE'
-    )
+    const sourceArtifact = new cdk.aws_codepipeline.Artifact('SOURCE')
 
     const actionSource =
       new cdk.aws_codepipeline_actions.CodeStarConnectionsSourceAction({
@@ -39,17 +33,15 @@ export class PipelineStack extends cdk.Stack {
       })
 
     pipeline.addStage({
-      stageName: 'PROJECT-NAME--SOURCE',
+      stageName: 'SOURCE',
       actions: [actionSource],
     })
 
-    const installedArtifact = new cdk.aws_codepipeline.Artifact(
-      'PROJECT-NAME--INSTALL'
-    )
+    const installedArtifact = new cdk.aws_codepipeline.Artifact('INSTALL')
 
     const installProject = new cdk.aws_codebuild.PipelineProject(
       this,
-      'PROJECT-NAME--INSTALL',
+      'INSTALL',
       {
         buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
           version: '0.2',
@@ -78,59 +70,51 @@ export class PipelineStack extends cdk.Stack {
       runOrder: 1,
     })
 
-    const testProject = new cdk.aws_codebuild.PipelineProject(
-      this,
-      'PROJECT-NAME--TEST',
-      {
-        buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
-          version: '0.2',
-          phases: {
-            build: {
-              commands: ['yarn rw test api && yarn rw test web'],
-            },
+    const testProject = new cdk.aws_codebuild.PipelineProject(this, 'TEST', {
+      buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
+        version: '0.2',
+        phases: {
+          build: {
+            commands: ['yarn rw test api && yarn rw test web'],
           },
-        }),
-        // environmentVariables: {},/** @manual We get the project's variables from infer/prompt/file */
-        environment: {
-          buildImage: cdk.aws_codebuild.LinuxBuildImage.STANDARD_6_0,
-          privileged: true,
         },
-      }
-    )
+      }),
+      // environmentVariables: {},/** @manual We get the project's variables from infer/prompt/file */
+      environment: {
+        buildImage: cdk.aws_codebuild.LinuxBuildImage.STANDARD_6_0,
+        privileged: true,
+      },
+    })
 
     const actionTest = new cdk.aws_codepipeline_actions.CodeBuildAction({
-      actionName: 'test-project',
+      actionName: 'tests',
       input: installedArtifact,
       project: testProject,
       runOrder: 2,
     })
 
-    const buildProject = new cdk.aws_codebuild.PipelineProject(
-      this,
-      'PROJECT-NAME--BUILD',
-      {
-        buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
-          version: '0.2',
-          phases: {
-            build: {
-              commands: [
-                'ls -la',
-                'yarn rw prisma migrate dev',
-                'yarn build api',
-                'yarn build web',
-              ],
-            },
+    const buildProject = new cdk.aws_codebuild.PipelineProject(this, 'BUILD', {
+      buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
+        version: '0.2',
+        phases: {
+          build: {
+            commands: [
+              'ls -la',
+              'yarn rw prisma migrate dev',
+              'yarn build api',
+              'yarn build web',
+            ],
           },
-        }),
-        // environmentVariables: {},/** @manual We get the project's variables from infer/prompt/file */
-        environment: {
-          buildImage: cdk.aws_codebuild.LinuxBuildImage.STANDARD_6_0,
-          privileged: true,
         },
-      }
-    )
+      }),
+      // environmentVariables: {},/** @manual We get the project's variables from infer/prompt/file */
+      environment: {
+        buildImage: cdk.aws_codebuild.LinuxBuildImage.STANDARD_6_0,
+        privileged: true,
+      },
+    })
 
-    const buildArtifact = new cdk.aws_codepipeline.Artifact('BUILD_ARTIFACT')
+    const buildArtifact = new cdk.aws_codepipeline.Artifact('BUILD')
 
     const actionBuild = new cdk.aws_codepipeline_actions.CodeBuildAction({
       actionName: 'build-from-source',
@@ -141,7 +125,7 @@ export class PipelineStack extends cdk.Stack {
     })
 
     pipeline.addStage({
-      stageName: 'PROJECT-NAME--BUILD',
+      stageName: 'BUILD',
       actions: [actionInstall, actionTest, actionBuild],
     })
   }
