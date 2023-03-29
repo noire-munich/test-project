@@ -57,7 +57,7 @@ export class PipelineStack extends cdk.Stack {
             build: {
               commands: [
                 'yarn install',
-                'yarn rw exec checkenv > .checkenv.out.yaml',
+                'pwd && yarn rw exec checkenv && yarn rw exec checkenv > .checkenv.out.yaml',
               ],
             },
           },
