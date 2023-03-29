@@ -69,7 +69,7 @@ export class PipelineStack extends cdk.Stack {
     )
 
     const actionInstall = new cdk.aws_codepipeline_actions.CodeBuildAction({
-      actionName: 'install packages',
+      actionName: 'install-packages',
       input: sourceArtifact,
       outputs: [buildArtifact],
       project: installProject,
