@@ -49,10 +49,11 @@ export class PipelineStack extends cdk.Stack {
             build: {
               commands: [
                 'yarn install',
-                'pwd && yarn rw exec checkenv && yarn rw exec checkenv > .checkenv.out.yaml',
+                // 'pwd && yarn rw exec checkenv && yarn rw exec checkenv > .checkenv.out.yaml',
               ],
             },
           },
+          artifacts: { files: 'package.json' },
         }),
         // environmentVariables: {},/** @manual We get the project's variables from infer/prompt/file */
         environment: {
