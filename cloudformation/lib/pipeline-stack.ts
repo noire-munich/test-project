@@ -1,12 +1,26 @@
 import * as cdk from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 
+import { ApiStage } from './api/stage'
+import { Fetch } from './params/params'
+import { RdsStage } from './rds/stage'
+
 const repoBranch = 'main'
 
 const repoOwner = 'noire-munich'
 
 const repoName = 'test-project'
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
+
+/**
+ * params
+ *  source
+ *  retrieve
+ *  update
+ * reader
+ *  dotenv
+ *  toml
+ */
 
 export class PipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -37,75 +51,18 @@ export class PipelineStack extends cdk.Stack {
       actions: [actionSource],
     })
 
-    const installedArtifact = new cdk.aws_codepipeline.Artifact('INSTALL')
-
-    const installProject = new cdk.aws_codebuild.PipelineProject(
-      this,
-      'INSTALL',
-      {
-        buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
-          version: '0.2',
-          phases: {
-            build: {
-              commands: [
-                'yarn install',
-                // 'pwd && yarn rw exec checkenv && yarn rw exec checkenv > .checkenv.out.yaml',
-              ],
-            },
-          },
-          artifacts: { files: 'package.json' },
-        }),
-        // environmentVariables: {},/** @manual We get the project's variables from infer/prompt/file */
-        environment: {
-          buildImage: cdk.aws_codebuild.LinuxBuildImage.STANDARD_6_0,
-          privileged: true,
-        },
-      }
-    )
-
-    const actionInstall = new cdk.aws_codepipeline_actions.CodeBuildAction({
-      actionName: 'install-packages',
-      input: sourceArtifact,
-      outputs: [installedArtifact],
-      project: installProject,
-      runOrder: 1,
-    })
-
-    const testProject = new cdk.aws_codebuild.PipelineProject(this, 'TEST', {
-      buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
-        version: '0.2',
-        phases: {
-          build: {
-            commands: ['yarn rw test api && yarn rw test web'],
-          },
-        },
-      }),
-      // environmentVariables: {},/** @manual We get the project's variables from infer/prompt/file */
-      environment: {
-        buildImage: cdk.aws_codebuild.LinuxBuildImage.STANDARD_6_0,
-        privileged: true,
-      },
-    })
-
-    const actionTest = new cdk.aws_codepipeline_actions.CodeBuildAction({
-      actionName: 'tests',
-      input: installedArtifact,
-      project: testProject,
-      runOrder: 2,
-    })
+    const variables = new Fetch('project').all
 
     const buildProject = new cdk.aws_codebuild.PipelineProject(this, 'BUILD', {
       buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
+          install: { commands: ['yarn install'] },
+          pre_build: { commands: ['yarn rw test'] },
           build: {
             commands: [
-              'yarn install',
-              'yarn zip-it-and-ship-it dist/functions zipballs/',
-              // 'echo $CODEBUILD_SRC_DIR',
               'yarn rw prisma migrate dev',
-              'yarn rw build api',
-              'yarn rw build web',
+              'yarn zip-it-and-ship-it dist/functions zipballs/',
             ],
           },
         },
@@ -113,7 +70,10 @@ export class PipelineStack extends cdk.Stack {
           files: 'zipballs/*',
         },
       }),
-      // environmentVariables: {},/** @manual We get the project's variables from infer/prompt/file */
+      environmentVariables: {
+        /** @manual We get the project's variables from infer/prompt/file */
+        ...variables,
+      },
       environment: {
         buildImage: cdk.aws_codebuild.LinuxBuildImage.STANDARD_6_0,
         privileged: true,
@@ -128,16 +88,15 @@ export class PipelineStack extends cdk.Stack {
       input: sourceArtifact,
       outputs: [buildArtifact],
       project: buildProject,
-      runOrder: 3,
     })
 
     pipeline.addStage({
       stageName: 'BUILD',
-      actions: [
-        // actionInstall,
-        //  actionTest,
-        actionBuild,
-      ],
+      actions: [actionBuild],
     })
+
+    // pipeline.addStage(new RdsStage(this, 'RDSStage', { stageName: 'RDSStage' }))
+
+    // pipeline.addStage(new ApiStage(this, 'ApiStage', { stageName: 'APIStage' }))
   }
 }
