@@ -56,7 +56,7 @@ export class PipelineStack extends cdk.Stack {
         version: '0.2',
         phases: {
           install: { commands: 'yarn install' },
-          pre_build: { commands: 'yarn rw test && exit' },
+          pre_build: { commands: 'yarn rw test --watch=false' },
           build: {
             commands: [
               'yarn rw prisma migrate dev',
