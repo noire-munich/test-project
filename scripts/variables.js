@@ -9,12 +9,12 @@ export default async ({ args }) => {
     'DATABASE_URL',
     process.env.DATABASE_URL.slice(0, 2),
     ' ',
-    provess.env.DATABASE_URL.slice(2)
+    process.env.DATABASE_URL.slice(2)
   )
   console.log(
     'SESSION_SECRET',
     process.env.SESSION_SECRET.slice(0, 2),
     ' ',
-    provess.env.SESSION_SECRET.slice(2)
+    process.env.SESSION_SECRET.slice(2)
   )
 }
