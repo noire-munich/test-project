@@ -12,15 +12,6 @@ const repoOwner = 'noire-munich'
 const repoName = 'test-project'
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
-/**
- * params
- *  source
- *  retrieve
- *  update
- * reader
- *  dotenv
- *  toml
- */
 
 export class PipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
