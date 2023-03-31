@@ -3,6 +3,7 @@ import { Construct } from 'constructs'
 
 import { ApiStage } from './api/stage'
 import { Fetch } from './params/params'
+import { RdsStack } from './rds/stack'
 import { RdsStage } from './rds/stage'
 
 const repoBranch = 'main'
@@ -24,6 +25,8 @@ export class PipelineStack extends cdk.Stack {
     pipeline.artifactBucket.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY)
 
     const sourceArtifact = new cdk.aws_codepipeline.Artifact('SOURCE')
+
+    const rdsStack = new RdsStack(this, 'RDS')
 
     const actionSource =
       new cdk.aws_codepipeline_actions.CodeStarConnectionsSourceAction({
