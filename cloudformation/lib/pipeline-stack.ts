@@ -61,6 +61,7 @@ export class PipelineStack extends cdk.Stack {
             ],
           },
         },
+        cache: { paths: '/root/.cache/yarn/**/*' },
         artifacts: {
           files: 'zipballs/*',
         },
