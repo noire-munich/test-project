@@ -54,6 +54,9 @@ export class PipelineStack extends cdk.Stack {
     const variables = new Fetch('project').all
 
     const buildProject = new cdk.aws_codebuild.PipelineProject(this, 'BUILD', {
+      role: new cdk.aws_iam.Role(this, 'BuildRole', {
+        assumedBy: new cdk.aws_iam.ServicePrincipal('codebuild.amazonaws.com'),
+      }),
       buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
