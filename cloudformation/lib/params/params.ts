@@ -122,7 +122,7 @@ export class Fetch extends EnvVariableWorker<FetchOutput> {
 
       return {
         ...Q,
-        [key]: { type: variableType, value: `${this.#prefix}/${key}` },
+        [key]: { type: variableType, value: `/${this.#prefix}/${key}` },
       }
     }, {})
 
