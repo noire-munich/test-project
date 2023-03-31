@@ -304,19 +304,7 @@ Resources:
         - Ref: PIPELINEBUILDbuildfromsourceCodePipelineActionRoleC0BDD5AD
     Metadata:
       aws:cdk:path: PipelineStack/PIPELINE/BUILD/build-from-source/CodePipelineActionRole/DefaultPolicy/Resource
-  BUILDRole2C5CA208:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: codebuild.amazonaws.com
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: PipelineStack/BUILD/Role/Resource
-  BUILDRoleDefaultPolicy5F935138:
+  BuildRolePolicyPipelineStackBuildRoleC6EB62813F289257:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -326,7 +314,7 @@ Resources:
             Resource: arn:aws:ssm:us-east-1:246406737889:parameter/project/DATABASE_URL
           - Action: secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:246406737889:secret:project/SESSION_SECRET-??????
+            Resource: arn:aws:secretsmanager:us-east-1:246406737889:secret:/project/SESSION_SECRET-??????
           - Action:
               - logs:CreateLogGroup
               - logs:CreateLogStream
@@ -389,11 +377,11 @@ Resources:
                 - PIPELINEArtifactsBucketEncryptionKey82712207
                 - Arn
         Version: "2012-10-17"
-      PolicyName: BUILDRoleDefaultPolicy5F935138
+      PolicyName: PolicyPipelineStackBuildRoleC6EB6281
       Roles:
-        - Ref: BUILDRole2C5CA208
+        - Pipeline
     Metadata:
-      aws:cdk:path: PipelineStack/BUILD/Role/DefaultPolicy/Resource
+      aws:cdk:path: PipelineStack/BuildRole/PolicyPipelineStackBuildRoleC6EB6281/Resource
   BUILD076F959B:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -404,32 +392,25 @@ Resources:
         EnvironmentVariables:
           - Name: SESSION_SECRET
             Type: SECRETS_MANAGER
-            Value: project/SESSION_SECRET
+            Value: /project/SESSION_SECRET
           - Name: DATABASE_URL
             Type: PARAMETER_STORE
-            Value: project/DATABASE_URL
+            Value: /project/DATABASE_URL
         Image: aws/codebuild/standard:6.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: true
         Type: LINUX_CONTAINER
-      ServiceRole:
-        Fn::GetAtt:
-          - BUILDRole2C5CA208
-          - Arn
+      ServiceRole: arn:aws:iam::246406737889:role/Pipeline
       Source:
         BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
               "install": {
-                "commands": [
-                  "yarn install"
-                ]
+                "commands": "yarn install"
               },
               "pre_build": {
-                "commands": [
-                  "yarn rw test"
-                ]
+                "commands": "yarn rw test && exit"
               },
               "build": {
                 "commands": [
@@ -437,6 +418,9 @@ Resources:
                   "yarn zip-it-and-ship-it dist/functions zipballs/"
                 ]
               }
+            },
+            "cache": {
+              "paths": "/root/.cache/yarn/**/*"
             },
             "artifacts": {
               "files": "zipballs/*"

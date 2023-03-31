@@ -5,6 +5,10 @@ type Lambdas = {
   [index in 'api']: cdk.aws_lambda.Function
 }
 
+export const CredentialsSecretId = 'DATABASE_CREDENTIALS_SECRET'
+
+export const CredentialsSecretAttachmentId = 'DATABASE_CREDENTIALS'
+
 export class RdsStack extends cdk.Stack {
   cluster: cdk.aws_rds.DatabaseCluster
 
@@ -39,5 +43,16 @@ export class RdsStack extends cdk.Stack {
       //   'default.aurora-postgresql14'
       // ),
     })
+
+    const _db_credentials = new cdk.aws_secretsmanager.SecretTargetAttachment(
+      this,
+      CredentialsSecretAttachmentId,
+      {
+        secret: new cdk.aws_secretsmanager.Secret(this, CredentialsSecretId, {
+          secretName: '/project/DATABASE_URL',
+        }),
+        target: this.cluster,
+      }
+    )
   }
 }

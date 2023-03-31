@@ -17,6 +17,8 @@ export class PipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
+    const _rdsStack = new RdsStack(this, 'RDS')
+
     const pipeline = new cdk.aws_codepipeline.Pipeline(this, 'PIPELINE', {
       pipelineName: 'PROJECTNAME',
       restartExecutionOnUpdate: true,
@@ -25,8 +27,6 @@ export class PipelineStack extends cdk.Stack {
     pipeline.artifactBucket.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY)
 
     const sourceArtifact = new cdk.aws_codepipeline.Artifact('SOURCE')
-
-    const rdsStack = new RdsStack(this, 'RDS')
 
     const actionSource =
       new cdk.aws_codepipeline_actions.CodeStarConnectionsSourceAction({
@@ -55,8 +55,8 @@ export class PipelineStack extends cdk.Stack {
       buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
-          install: { commands: ['yarn install'] },
-          pre_build: { commands: ['yarn rw test'] },
+          install: { commands: 'yarn install' },
+          pre_build: { commands: 'yarn rw test && exit' },
           build: {
             commands: [
               'yarn rw prisma migrate dev',
