@@ -74,8 +74,8 @@ export class PipelineStack extends cdk.Stack {
           pre_build: {
             commands: [
               'yarn rw exec variables && exit',
-              // `pg_isready -d ${databaseName} -h ${props?.database.dbInstanceEndpointAddress} -p ${props?.database.dbInstanceEndpointPort} -U admin`,
-              // 'yarn rw test --watch=false',
+              // `pg_isready -d ${databaseName} -h ${props?.database.dbInstanceEndpointAddress} -p ${props?.database.dbInstanceEndpointPort} -U admin`, /** @manual We only mean to test the database connection - which is also tested with migrate-dev later on... probably useless. */
+              // 'yarn rw test --watch=false', /** @todo Reactivate those. */
             ],
           },
           build: {
