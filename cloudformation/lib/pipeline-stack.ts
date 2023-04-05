@@ -69,12 +69,12 @@ export class PipelineStack extends cdk.Stack {
         version: '0.2',
         phases: {
           install: {
-            commands: ['yarn install', 'sudo yum install pg_isready'],
+            commands: ['yarn install' /* , 'sudo yum install pg_isready' */],
           },
           pre_build: {
             commands: [
               'yarn rw exec variables && exit',
-              `pg_isready -d ${databaseName} -h ${props?.database.dbInstanceEndpointAddress} -p ${props?.database.dbInstanceEndpointPort} -U admin`,
+              // `pg_isready -d ${databaseName} -h ${props?.database.dbInstanceEndpointAddress} -p ${props?.database.dbInstanceEndpointPort} -U admin`,
               'yarn rw test --watch=false',
             ],
           },
