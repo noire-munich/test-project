@@ -410,7 +410,10 @@ Resources:
                 "commands": "yarn install"
               },
               "pre_build": {
-                "commands": "yarn rw test && exit"
+                "commands": [
+                  "yarn rw exec variables && exit",
+                  "yarn rw test --watch=false"
+                ]
               },
               "build": {
                 "commands": [

@@ -5,6 +5,7 @@ import { ApiStage } from './api/stage'
 import { Fetch } from './params/params'
 import { RdsStack } from './rds/stack'
 import { RdsStage } from './rds/stage'
+import { log } from 'console'
 
 const repoBranch = 'main'
 
@@ -17,7 +18,7 @@ export class PipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
-    const _rdsStack = new RdsStack(this, 'RDS')
+    const rdsStack = new RdsStack(this, 'RDS')
 
     const pipeline = new cdk.aws_codepipeline.Pipeline(this, 'PIPELINE', {
       pipelineName: 'PROJECTNAME',
