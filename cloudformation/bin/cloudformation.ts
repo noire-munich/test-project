@@ -28,7 +28,7 @@ const vpcStack = new VpcStack(app, 'VPC', {
   stackName: 'VPCStack',
 })
 
-const _rdsStack = new RdsStack(app, 'RDS', {
+const rdsStack = new RdsStack(app, 'RDS', {
   ...defaultProps,
   stackName: 'RDSSTACK',
   vpc: vpcStack.vpc,
@@ -37,5 +37,6 @@ const _rdsStack = new RdsStack(app, 'RDS', {
 const _pipeline = new PipelineStack(app, 'Pipeline', {
   ...defaultProps,
   stackName: 'PipelineStack',
+  database: rdsStack.database,
   vpc: vpcStack.vpc,
 })

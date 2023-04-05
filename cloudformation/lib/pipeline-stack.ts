@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 
 import { Fetch } from './params/params'
+import { databaseName } from './rds/stack'
 
 const repoBranch = 'main'
 
@@ -14,13 +15,26 @@ export class PipelineStack extends cdk.Stack {
   constructor(
     scope: Construct,
     id: string,
-    props?: cdk.StackProps & { vpc: cdk.aws_ec2.Vpc }
+    props?: cdk.StackProps & {
+      database: cdk.aws_rds.DatabaseInstance
+      vpc: cdk.aws_ec2.Vpc
+    }
   ) {
     super(scope, id, props)
 
     const pipeline = new cdk.aws_codepipeline.Pipeline(this, 'PIPELINE', {
       restartExecutionOnUpdate: true,
     })
+
+    // TEST_DATABASE_URL=file:./.redwood/test.db
+    // const _testDatabaseUrl = new cdk.aws_ssm.StringParameter(
+    //   this,
+    //   'TEST_DATABASE_URL',
+    //   {
+    //     parameterName: 'TEST_DATABASE_URL',
+    //     stringValue: 'file:./.redwood/test.db',
+    //   }
+    // )
 
     pipeline.artifactBucket.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY)
 
@@ -45,6 +59,7 @@ export class PipelineStack extends cdk.Stack {
     const variables = new Fetch('project').all
 
     const buildProject = new cdk.aws_codebuild.PipelineProject(this, 'BUILD', {
+      vpc: props?.vpc,
       role: cdk.aws_iam.Role.fromRoleArn(
         this,
         'BuildRole',
@@ -53,10 +68,13 @@ export class PipelineStack extends cdk.Stack {
       buildSpec: cdk.aws_codebuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
-          install: { commands: 'yarn install' },
+          install: {
+            commands: ['yarn install', 'sudo apt-get install pg_isready'],
+          },
           pre_build: {
             commands: [
               'yarn rw exec variables && exit',
+              `pg_isready -d ${databaseName} -h ${props?.database.dbInstanceEndpointAddress} -p ${props?.database.dbInstanceEndpointPort} -U admin`,
               'yarn rw test --watch=false',
             ],
           },
@@ -96,6 +114,5 @@ export class PipelineStack extends cdk.Stack {
       stageName: 'BUILD',
       actions: [actionBuild],
     })
-
   }
 }

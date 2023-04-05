@@ -28,7 +28,8 @@ const allowedEngines = {
   ],
 }
 
-const databaseName = 'db_project'
+export const databaseName = 'db_project'
+
 export class RdsStack extends cdk.Stack {
   cluster: cdk.aws_rds.DatabaseCluster
 
@@ -40,6 +41,8 @@ export class RdsStack extends cdk.Stack {
 
   lambdas: Lambdas
 
+  testDatabase: cdk.aws_rds.DatabaseInstance
+
   constructor(
     scope: Construct,
     id: string,
@@ -50,6 +53,10 @@ export class RdsStack extends cdk.Stack {
     if (!props?.vpc) {
       throw new Error('VPC is expected as a prop.')
     }
+
+    // Create a database with user and db name
+    // Create a test database with a user and db name
+    // --> check if possible to add one more database to an instance
 
     this.database = new cdk.aws_rds.DatabaseInstance(this, 'PROJECT_DATABASE', {
       engine: cdk.aws_rds.DatabaseInstanceEngine.POSTGRES,
