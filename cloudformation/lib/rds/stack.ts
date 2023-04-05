@@ -5,11 +5,11 @@ type Lambdas = {
   [index in 'api']: cdk.aws_lambda.Function
 }
 
-export const CredentialsSecretId = 'DATABASE_CREDENTIALS_SECRET'
+export const ID_DATABASE_CREDENTIALS_SECRET = 'DATABASE_CREDENTIALS_SECRET'
 
-export const CredentialsSecretAttachmentId = 'DATABASE_CREDENTIALS'
+export const ID_DATABASE_CREDENTIALS = 'DATABASE_CREDENTIALS'
 
-const allowedStorageSizes = { entry: { default: 5, max: 10 } }
+const allowedStorageSizes = { entry: { default: 10, max: 25 } }
 
 const allowedEngines = {
   entry: [
@@ -40,12 +40,16 @@ export class RdsStack extends cdk.Stack {
 
   lambdas: Lambdas
 
-  vpc: cdk.aws_ec2.Vpc
-
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props?: cdk.StackProps & { vpc: cdk.aws_ec2.Vpc }
+  ) {
     super(scope, id, props)
 
-    this.vpc = new cdk.aws_ec2.Vpc(this, 'PROJECT_VPC', { maxAzs: 1 })
+    if (!props?.vpc) {
+      throw new Error('VPC is expected as a prop.')
+    }
 
     this.database = new cdk.aws_rds.DatabaseInstance(this, 'PROJECT_DATABASE', {
       engine: cdk.aws_rds.DatabaseInstanceEngine.POSTGRES,
@@ -56,24 +60,36 @@ export class RdsStack extends cdk.Stack {
       databaseName: databaseName,
       /** @manual multiAz support generates more costs as it will create NAT Gateways. */
       multiAz: false,
-      maxAllocatedStorage: allowedStorageSizes.entry.default,
-      vpc: this.vpc,
+      /** @manual maxAllocatedStorage This sets the upper limit for autoscaling. Disabled as default = no autoscaling.  */
+      // maxAllocatedStorage: allowedStorageSizes.entry.max,
+      vpc: props.vpc,
     })
 
     const credentials = new cdk.aws_secretsmanager.SecretTargetAttachment(
       this,
-      CredentialsSecretAttachmentId,
+      ID_DATABASE_CREDENTIALS,
       {
-        secret: new cdk.aws_secretsmanager.Secret(this, CredentialsSecretId, {
-          secretName: '/project/DB_CREDENTIALS',
-        }),
+        secret: new cdk.aws_secretsmanager.Secret(
+          this,
+          ID_DATABASE_CREDENTIALS_SECRET,
+          {
+            secretName: '/project/DB_CREDENTIALS',
+            secretObjectValue: {
+              database: cdk.SecretValue.unsafePlainText(databaseName),
+              username: cdk.SecretValue.unsafePlainText('admin'),
+              password: cdk.SecretValue.unsafePlainText('project'),
+            },
+          }
+        ),
         target: this.database,
       }
     )
 
-    const connectionString = `postgres://admin:${credentials.secretValue.unsafeUnwrap()}@${
-      this.database.dbInstanceEndpointAddress
-    }:${this.database.dbInstanceEndpointPort}/${databaseName}`
+    const connectionString = `postgres://admin:${credentials
+      .secretValueFromJson('password')
+      .unsafeUnwrap()}@${this.database.dbInstanceEndpointAddress}:${
+      this.database.dbInstanceEndpointPort
+    }/${databaseName}`
 
     this.connectionString = new cdk.aws_ssm.StringParameter(
       this,
@@ -93,9 +109,7 @@ export class RdsStack extends cdk.Stack {
  *
  * @param scope
  */
-const auroraCluster = (scope: RdsStack): void => {
-  scope.vpc = new cdk.aws_ec2.Vpc(scope, 'PROJECT_VPC', {})
-
+const auroraCluster = (scope: RdsStack, vpc: cdk.aws_ec2.Vpc): void => {
   scope.cluster = new cdk.aws_rds.DatabaseCluster(scope, 'PROJECT_CLUSTER', {
     engine: cdk.aws_rds.DatabaseClusterEngine.auroraPostgres({
       version: cdk.aws_rds.AuroraPostgresEngineVersion.VER_14_6,
@@ -103,7 +117,7 @@ const auroraCluster = (scope: RdsStack): void => {
     // engine: cdk.aws_rds.DatabaseClusterEngine.AURORA_POSTGRESQL,
     instances: 2,
     instanceProps: {
-      vpc: scope.vpc,
+      vpc,
       deleteAutomatedBackups: true,
       // parameterGroup: cdk.aws_rds.ParameterGroup.fromParameterGroupName(
       //   scope,
@@ -121,11 +135,15 @@ const auroraCluster = (scope: RdsStack): void => {
 
   const _db_credentials = new cdk.aws_secretsmanager.SecretTargetAttachment(
     scope,
-    CredentialsSecretAttachmentId,
+    ID_DATABASE_CREDENTIALS,
     {
-      secret: new cdk.aws_secretsmanager.Secret(scope, CredentialsSecretId, {
-        secretName: '/project/DATABASE_URL',
-      }),
+      secret: new cdk.aws_secretsmanager.Secret(
+        scope,
+        ID_DATABASE_CREDENTIALS_SECRET,
+        {
+          secretName: '/project/DATABASE_URL',
+        }
+      ),
       target: scope.cluster,
     }
   )

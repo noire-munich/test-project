@@ -1,11 +1,7 @@
 import * as cdk from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 
-import { ApiStage } from './api/stage'
 import { Fetch } from './params/params'
-import { RdsStack } from './rds/stack'
-import { RdsStage } from './rds/stage'
-import { log } from 'console'
 
 const repoBranch = 'main'
 
@@ -15,13 +11,14 @@ const repoName = 'test-project'
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class PipelineStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props?: cdk.StackProps & { vpc: cdk.aws_ec2.Vpc }
+  ) {
     super(scope, id, props)
 
-    const rdsStack = new RdsStack(this, 'RDS')
-
     const pipeline = new cdk.aws_codepipeline.Pipeline(this, 'PIPELINE', {
-      pipelineName: 'PROJECTNAME',
       restartExecutionOnUpdate: true,
     })
 
@@ -100,8 +97,5 @@ export class PipelineStack extends cdk.Stack {
       actions: [actionBuild],
     })
 
-    // pipeline.addStage(new RdsStage(this, 'RDSStage', { stageName: 'RDSStage' }))
-
-    // pipeline.addStage(new ApiStage(this, 'ApiStage', { stageName: 'APIStage' }))
   }
 }
