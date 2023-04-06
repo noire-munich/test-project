@@ -73,13 +73,13 @@ export class RdsStack extends cdk.Stack {
       /** @manual maxAllocatedStorage This sets the upper limit for autoscaling. Disabled as default = no autoscaling.  */
       // maxAllocatedStorage: allowedStorageSizes.entry.max,
       vpc: props.vpc,
-      /** @manual Add the same vpc securityGroup as from props.vpc. */
-      securityGroups: [props.securityGroup],
       vpcSubnets: {
         subnetType: cdk.aws_ec2.SubnetType.PRIVATE_ISOLATED,
         onePerAz: true,
       },
     })
+
+    // this.database.connections.addSecurityGroup(props.securityGroup)
 
     const credentials = new cdk.aws_secretsmanager.SecretTargetAttachment(
       this,

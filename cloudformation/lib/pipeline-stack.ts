@@ -99,8 +99,10 @@ export class PipelineStack extends cdk.Stack {
         buildImage: cdk.aws_codebuild.LinuxBuildImage.STANDARD_6_0,
         privileged: true,
       },
-      securityGroups: [props.securityGroup],
     })
+
+    buildProject.connections.allowToDefaultPort(props.database)
+    // buildProject.connections.addSecurityGroup(props.securityGroup)
 
     const buildArtifact = new cdk.aws_codepipeline.Artifact('BUILD')
 

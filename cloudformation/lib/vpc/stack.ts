@@ -12,6 +12,7 @@ export class VpcStack extends cdk.Stack {
     this.vpc = new cdk.aws_ec2.Vpc(this, 'PROJECT_VPC', {
       maxAzs: 2,
       natGateways: 1,
+      vpcName: 'PROJECT_VPC',
       /** @manual This VPC requires input from the internet to install packages & sources. */
       subnetConfiguration: [
         {
@@ -33,10 +34,10 @@ export class VpcStack extends cdk.Stack {
       ],
     })
 
-    this.securityGroup = new cdk.aws_ec2.SecurityGroup(
-      this,
-      'BUILD_SECURITY_GROUP',
-      { vpc: this.vpc, securityGroupName: 'PROJECT__BUILD__SECURITY_GROUP' }
-    )
+    // this.securityGroup = new cdk.aws_ec2.SecurityGroup(
+    //   this,
+    //   'BUILD_SECURITY_GROUP',
+    //   { vpc: this.vpc, securityGroupName: 'PROJECT__BUILD__SECURITY_GROUP', }
+    // )
   }
 }
