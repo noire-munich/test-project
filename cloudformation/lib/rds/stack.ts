@@ -78,6 +78,7 @@ export class RdsStack extends cdk.Stack {
       },
     })
 
+    /** @noire Check that this is not more elegant: https://github.com/prisma/prisma/issues/7534#issuecomment-1026854075  */
     const getAt = (key: string) =>
       this.database.secret?.secretValueFromJson(key).unsafeUnwrap()
 
