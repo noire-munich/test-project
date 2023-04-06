@@ -34,6 +34,8 @@ const rdsStack = new RdsStack(app, 'RDS', {
   vpc: vpcStack.vpc,
 })
 
+rdsStack.addDependency(vpcStack)
+
 const pipeline = new PipelineStack(app, 'Pipeline', {
   ...defaultProps,
   stackName: 'PipelineStack',
