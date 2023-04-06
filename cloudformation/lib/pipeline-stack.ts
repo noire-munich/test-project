@@ -17,7 +17,6 @@ export class PipelineStack extends cdk.Stack {
     id: string,
     props: cdk.StackProps & {
       database: cdk.aws_rds.DatabaseInstance
-      securityGroup: cdk.aws_ec2.SecurityGroup
       vpc: cdk.aws_ec2.Vpc
     }
   ) {
@@ -70,18 +69,18 @@ export class PipelineStack extends cdk.Stack {
         version: '0.2',
         phases: {
           install: {
-            commands: ['yarn install' /* , 'sudo yum install pg_isready' */],
+            commands: ['yarn install'],
           },
           pre_build: {
             commands: [
               'yarn rw exec variables && exit',
-              // `pg_isready -d ${databaseName} -h ${props?.database.dbInstanceEndpointAddress} -p ${props?.database.dbInstanceEndpointPort} -U admin`, /** @manual We only mean to test the database connection - which is also tested with migrate-dev later on... probably useless. */
               // 'yarn rw test --watch=false', /** @todo Reactivate those. */
             ],
           },
           build: {
             commands: [
               'yarn rw prisma migrate dev',
+              'yarn rw build',
               'yarn zip-it-and-ship-it dist/functions zipballs/',
             ],
           },
@@ -102,7 +101,6 @@ export class PipelineStack extends cdk.Stack {
     })
 
     buildProject.connections.allowToDefaultPort(props.database)
-    // buildProject.connections.addSecurityGroup(props.securityGroup)
 
     const buildArtifact = new cdk.aws_codepipeline.Artifact('BUILD')
 

@@ -47,7 +47,6 @@ export class RdsStack extends cdk.Stack {
     scope: Construct,
     id: string,
     props: cdk.StackProps & {
-      securityGroup: cdk.aws_ec2.SecurityGroup
       vpc: cdk.aws_ec2.Vpc
     }
   ) {
@@ -78,28 +77,6 @@ export class RdsStack extends cdk.Stack {
         onePerAz: true,
       },
     })
-
-    // this.database.connections.addSecurityGroup(props.securityGroup)
-
-    // const credentials = new cdk.aws_secretsmanager.SecretTargetAttachment(
-    //   this,
-    //   ID_DATABASE_CREDENTIALS,
-    //   {
-    //     secret: new cdk.aws_secretsmanager.Secret(
-    //       this,
-    //       ID_DATABASE_CREDENTIALS_SECRET,
-    //       {
-    //         secretName: '/project/DB_CREDENTIALS',
-    //         secretObjectValue: {
-    //           database: cdk.SecretValue.unsafePlainText(databaseName),
-    //           username: cdk.SecretValue.unsafePlainText('admin'),
-    //           password: cdk.SecretValue.unsafePlainText('project'),
-    //         },
-    //       }
-    //     ),
-    //     target: this.database,
-    //   }
-    // )
 
     const getAt = (key: string) =>
       this.database.secret?.secretValueFromJson(key).unsafeUnwrap()
