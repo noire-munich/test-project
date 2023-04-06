@@ -80,8 +80,8 @@ export class PipelineStack extends cdk.Stack {
           build: {
             commands: [
               'yarn rw prisma migrate dev',
-              'yarn rw build',
-              'yarn zip-it-and-ship-it dist/functions zipballs/',
+              'yarn rw build api',
+              'cd api && yarn zip-it-and-ship-it dist/functions zipballs/',
             ],
           },
         },
