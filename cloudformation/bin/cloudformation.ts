@@ -41,6 +41,7 @@ const pipeline = new PipelineStack(app, 'Pipeline', {
   ...defaultProps,
   stackName: 'PipelineStack',
   database: rdsStack.database,
+  securityGroup: vpcStack.securityGroup,
   vpc: vpcStack.vpc,
 })
 

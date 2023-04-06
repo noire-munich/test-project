@@ -15,8 +15,9 @@ export class PipelineStack extends cdk.Stack {
   constructor(
     scope: Construct,
     id: string,
-    props?: cdk.StackProps & {
+    props: cdk.StackProps & {
       database: cdk.aws_rds.DatabaseInstance
+      securityGroup: cdk.aws_ec2.SecurityGroup
       vpc: cdk.aws_ec2.Vpc
     }
   ) {
@@ -98,6 +99,7 @@ export class PipelineStack extends cdk.Stack {
         buildImage: cdk.aws_codebuild.LinuxBuildImage.STANDARD_6_0,
         privileged: true,
       },
+      securityGroups: [props.securityGroup],
     })
 
     const buildArtifact = new cdk.aws_codepipeline.Artifact('BUILD')

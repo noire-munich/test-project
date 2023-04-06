@@ -46,7 +46,7 @@ export class RdsStack extends cdk.Stack {
   constructor(
     scope: Construct,
     id: string,
-    props?: cdk.StackProps & {
+    props: cdk.StackProps & {
       securityGroup: cdk.aws_ec2.SecurityGroup
       vpc: cdk.aws_ec2.Vpc
     }
@@ -72,16 +72,9 @@ export class RdsStack extends cdk.Stack {
       multiAz: false,
       /** @manual maxAllocatedStorage This sets the upper limit for autoscaling. Disabled as default = no autoscaling.  */
       // maxAllocatedStorage: allowedStorageSizes.entry.max,
-      vpc: props.vpc /** @manual Add the same vpc securityGroup as from props.vpc. */,
-      securityGroups: [
-        props.securityGroup,
-        // cdk.aws_ec2.SecurityGroup.fromLookupByName(
-        //   this,
-        //   'DB_SECURITY_GROUP',
-        //   'PROJECT__BUILD__SECURITY_GROUP',
-        //   props.vpc
-        // ),
-      ],
+      vpc: props.vpc,
+      /** @manual Add the same vpc securityGroup as from props.vpc. */
+      securityGroups: [props.securityGroup],
       vpcSubnets: {
         subnetType: cdk.aws_ec2.SubnetType.PRIVATE_ISOLATED,
         onePerAz: true,
