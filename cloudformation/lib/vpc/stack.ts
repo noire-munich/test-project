@@ -2,6 +2,8 @@ import * as cdk from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 
 export class VpcStack extends cdk.Stack {
+  securityGroup: cdk.aws_ec2.SecurityGroup
+
   vpc: cdk.aws_ec2.Vpc
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -30,5 +32,11 @@ export class VpcStack extends cdk.Stack {
         },
       ],
     })
+
+    this.securityGroup = new cdk.aws_ec2.SecurityGroup(
+      this,
+      'BUILD_SECURITY_GROUP',
+      { vpc: this.vpc, securityGroupName: 'PROJECT__BUILD__SECURITY_GROUP' }
+    )
   }
 }

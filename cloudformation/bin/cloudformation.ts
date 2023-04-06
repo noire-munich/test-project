@@ -31,6 +31,7 @@ const vpcStack = new VpcStack(app, 'VPC', {
 const rdsStack = new RdsStack(app, 'RDS', {
   ...defaultProps,
   stackName: 'RDSSTACK',
+  securityGroup: vpcStack.securityGroup,
   vpc: vpcStack.vpc,
 })
 
