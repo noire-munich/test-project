@@ -81,31 +81,32 @@ export class RdsStack extends cdk.Stack {
 
     // this.database.connections.addSecurityGroup(props.securityGroup)
 
-    const credentials = new cdk.aws_secretsmanager.SecretTargetAttachment(
-      this,
-      ID_DATABASE_CREDENTIALS,
-      {
-        secret: new cdk.aws_secretsmanager.Secret(
-          this,
-          ID_DATABASE_CREDENTIALS_SECRET,
-          {
-            secretName: '/project/DB_CREDENTIALS',
-            secretObjectValue: {
-              database: cdk.SecretValue.unsafePlainText(databaseName),
-              username: cdk.SecretValue.unsafePlainText('admin'),
-              password: cdk.SecretValue.unsafePlainText('project'),
-            },
-          }
-        ),
-        target: this.database,
-      }
-    )
+    // const credentials = new cdk.aws_secretsmanager.SecretTargetAttachment(
+    //   this,
+    //   ID_DATABASE_CREDENTIALS,
+    //   {
+    //     secret: new cdk.aws_secretsmanager.Secret(
+    //       this,
+    //       ID_DATABASE_CREDENTIALS_SECRET,
+    //       {
+    //         secretName: '/project/DB_CREDENTIALS',
+    //         secretObjectValue: {
+    //           database: cdk.SecretValue.unsafePlainText(databaseName),
+    //           username: cdk.SecretValue.unsafePlainText('admin'),
+    //           password: cdk.SecretValue.unsafePlainText('project'),
+    //         },
+    //       }
+    //     ),
+    //     target: this.database,
+    //   }
+    // )
 
-    const connectionString = `postgres://admin:${credentials
-      .secretValueFromJson('password')
-      .unsafeUnwrap()}@${this.database.dbInstanceEndpointAddress}:${
-      this.database.dbInstanceEndpointPort
-    }/${databaseName}`
+    const getAt = (key: string) =>
+      this.database.secret?.secretValueFromJson(key).unsafeUnwrap()
+
+    const connectionString = `postgres://${getAt('username')}:${getAt(
+      'password'
+    )}@${getAt('host')}:${getAt('port')}/${getAt('dbname')}`
 
     this.connectionString = new cdk.aws_ssm.StringParameter(
       this,
