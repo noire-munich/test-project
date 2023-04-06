@@ -9,7 +9,24 @@ export class VpcStack extends cdk.Stack {
 
     this.vpc = new cdk.aws_ec2.Vpc(this, 'PROJECT_VPC', {
       maxAzs: 2,
-      natGateways: 1,
+      natGateways: 0,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'ingress',
+          subnetType: cdk.aws_ec2.SubnetType.PUBLIC,
+        },
+        // {
+        //   cidrMask: 24,
+        //   name: 'application',
+        //   subnetType: cdk.aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        // },
+        {
+          cidrMask: 28,
+          name: 'rds',
+          subnetType: cdk.aws_ec2.SubnetType.PRIVATE_ISOLATED,
+        },
+      ],
     })
   }
 }
