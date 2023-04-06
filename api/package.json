@@ -6,5 +6,8 @@
     "@redwoodjs/api": "5.0.0-canary.525",
     "@redwoodjs/auth-dbauth-api": "5.0.0-canary.525",
     "@redwoodjs/graphql-server": "5.0.0-canary.525"
+  },
+  "devDependencies": {
+    "@netlify/zip-it-and-ship-it": "^8.9.0"
   }
 }
